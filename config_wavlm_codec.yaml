@@ -1,0 +1,122 @@
+
+#-----------------------------------------------
+#Config that does not have impact on performance
+#-----------------------------------------------
+
+
+random_seed: 0b011011
+
+#-----------------------------------------------
+#1. Dataset
+#-----------------------------------------------
+
+dataset:
+  iscodec: True
+#directory that have every dataset in it.
+  data_dir: "/home/woongjib/Projects/SSLBWE/sr/"
+  nb_train: "recon_mpeg/MP3_sr16_train_16kbps/train"
+  nb_val: "recon_mpeg/MP3_sr16_train_16kbps/test"
+  wb_train: "VCTK/16Khz/train"
+  wb_val: "VCTK/16Khz/test"
+  
+  batch_size: 16
+  seg_len: 2
+  ## Segment audio length
+  
+  num_workers: 8
+
+ 
+#-----------------------------------------------
+#2. Model
+#-----------------------------------------------
+
+model:
+  generator: SEANet
+  # hubert, w2v, wavlm
+  sslname: None
+  ms_mel_loss_config:
+            n_fft_list: [32, 64, 128, 256, 512, 1024, 2048]
+            hop_ratio: 0.25
+            mel_bin_list: [5, 10, 20, 40, 80, 160, 320]
+            reduction: 1
+            loss_ratio: 1.0
+            sr: 16000
+  kmeans_path: '/home/woongjib/Projects/SSLBWE/sr/weights/kmeans/kmeans_modelweight_128_wavlm.pkl'
+ 
+  discriminator: MBSTFTD
+  MultiBandSTFTDiscriminator_config:
+      C: 32
+      n_fft_list: [2048, 1024, 512]
+      hop_len_list: [512, 256, 128]
+      band_split_ratio:
+          - [0.0, 0.1]
+          - [0.1, 0.25]
+          - [0.25, 0.5]
+          - [0.5, 0.75]
+          - [0.75, 1.0]
+
+#-----------------------------------------------
+#3. Loss
+#-----------------------------------------------
+
+
+#No information
+
+#-----------------------------------------------
+#4. Optimizer (ADAM)
+#-----------------------------------------------
+
+optim:
+  learning_rate: 0.0001
+
+  B1: 0.5
+  B2: 0.9
+
+
+#-----------------------------------------------
+#Training
+#-----------------------------------------------
+
+train:
+  epoch_save_start: 1
+  val_epoch: 5
+  
+#Path of output of validation. 
+  output_dir_path: "./output_wavlm_codec"
+  logger_path: "./logger_wavlm_codec"
+  max_epochs: 100
+
+  devices:
+    - 0
+    #- 1
+    # -2 ... if you are using DDP
+
+  # True if load from previous
+  ckpt: False
+  ckpt_path: "/home/woongjib/Projects/SSLBWE/sr/logger_wavlm_codec/wavlm_128_codec/417p74wa/checkpoints/epoch=19-val_pesq_wb=0.00-val_pesq_nb=0.00.ckpt"
+
+wandb:
+  project_name: "wavlm_128_codec_E20-"
+#-----------------------------------------------
+#Predict (Inference)
+#-----------------------------------------------
+predict:
+  nb_pred_path: "/home/woongzip/VCTK/8Khz/test/p351" 
+    #The path to the directory containing the WAV files
+
+  # wav file dir
+  # "/home/woongjib/Projects/Dataset/VCTK-Corpus-0.92/8Khz/test/p351/p351_001_mic1.flac" 
+  
+  # ckpt dir
+  # "/home/woongjib/Projects/RealTimeBWE/output/final_model.ckpt"
+
+  pred_output_path: "/home/woongzip/VCTK/8_16/p351" 
+  #The path to the directory where the output files will be saved.
+
+  # python inference.py --mode wav --path_ckpt /home/woongjib/Projects/RealTimeBWE/output/final_model.ckpt --path_in /home/woongjib/Projects/Dataset/VCTK-Corpus-0.92/8Khz/test/p351/p351_001_mic1.flac
+
+# My Eval **********************
+eval:
+  weight_path: "/home/woongjib/Projects/SSLBWE/sr/weights/wavlm_128_e100_codec.ckpt"
+
+

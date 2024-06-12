@@ -1,0 +1,15 @@
+__pycache__/
+checkpoints/
+kmeans/
+wandb/
+config_hubert_128.yaml
+config_w2v_128.yaml
+config_wavlm_128_codec.yaml
+config_wavlm_128.yaml
+
+kmeans.py
+newdataset.py
+temp.ipynb
+
+
+
